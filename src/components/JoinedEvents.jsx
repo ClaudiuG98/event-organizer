@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, Pressable } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { getJoinedEvents } from "../hooks/joinedEvents";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import EventCard from "./EventCard";
 import { auth } from "../firebaseConfig"; // Import auth
+import { useNavigate } from "react-router-native";
 
 const JoinedEvents = () => {
   const [joinedEvents, setJoinedEvents] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchJoinedEvents = async () => {
       setError(null);
@@ -43,6 +46,16 @@ const JoinedEvents = () => {
     fetchJoinedEvents();
   }, []);
 
+  const Header = () => {
+    return (
+      <View style={styles.header}>
+        <Pressable onPress={() => navigate("/")} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#8b4513" />
+        </Pressable>
+        <Text style={styles.title}>Joined Events</Text>
+      </View>
+    );
+  };
   return (
     <View style={styles.container}>
       {loading ? (
@@ -55,15 +68,24 @@ const JoinedEvents = () => {
           <Text style={styles.errorText}>Error: {error}</Text>
         </View>
       ) : joinedEvents.length === 0 ? (
-        <View style={styles.noEventsContainer}>
-          <Text style={styles.noEventsText}>You haven't joined any events yet.</Text>
+        <View style={{ flex: 1 }}>
+          <Header />
+          <View style={styles.noEventsContainer}>
+            <Text style={styles.noEventsText}>You haven't joined any events yet.</Text>
+          </View>
         </View>
       ) : (
-        <FlatList
-          data={joinedEvents}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <EventCard event={item} />}
-        />
+        <View style={{ flex: 1 }}>
+          <Header />
+          <FlatList
+            data={joinedEvents}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <EventCard event={item} />}
+            contentContainerStyle={styles.flatListContent}
+            numColumns={2} // Display 2 columns
+            columnWrapperStyle={styles.columnWrapper}
+          />
+        </View>
       )}
     </View>
   );
@@ -72,18 +94,46 @@ const JoinedEvents = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f5f5f5", // Light background
+    paddingTop: 50,
+    backgroundColor: "#FFFAF0",
+    flexDirection: "row",
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
+  flatListContent: {
+    paddingHorizontal: 10, // Reduced horizontal padding
+    paddingTop: 10, // Reduced top padding
+    paddingBottom: 85,
+  },
+  columnWrapper: {
+    justifyContent: "space-between", // Space evenly between columns
+    marginBottom: 10, // Vertical spacing between rows
+  },
   loadingText: {
     marginTop: 20,
     fontSize: 16,
     color: "#888",
+  },
+  header: {
+    // Style the header container
+    width: "100%", // Take full width
+    flexDirection: "row", // Arrange back button and title horizontally
+    alignItems: "center", // Vertically center items
+    justifyContent: "center", // Center the Title
+    marginBottom: 20, // Add margin below the header
+  },
+  title: {
+    // Center the title horizontally
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#ffa500", // Orange
+  },
+  backButton: {
+    position: "absolute", // Take the back button out of the flow
+    left: 10, // Position it to the left edge of the header
   },
   errorContainer: {
     flex: 1,

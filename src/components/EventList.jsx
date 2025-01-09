@@ -1,8 +1,10 @@
-import { View, StyleSheet, ScrollView, ActivityIndicator, Text } from "react-native";
+import { View, StyleSheet, FlatList, ActivityIndicator, Text } from "react-native";
 import EventCard from "./EventCard";
 import DateBar from "./DateBar";
 
 const EventList = ({ events, startDate, endDate, setEndDate, setStartDate }) => {
+  const renderItem = ({ item }) => <EventCard key={item.id} event={item} />;
+
   return events.length > 0 ? (
     <View style={styles.container}>
       <DateBar
@@ -11,11 +13,14 @@ const EventList = ({ events, startDate, endDate, setEndDate, setStartDate }) => 
         setEndDate={setEndDate}
         setStartDate={setStartDate}
       />
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
-      </ScrollView>
+      <FlatList
+        data={events}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.flatListContent}
+        numColumns={2} // Display 2 columns
+        columnWrapperStyle={styles.columnWrapper} // Add spacing between columns
+      />
     </View>
   ) : (
     <View style={styles.loadingContainer}>
@@ -30,16 +35,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFAF0",
   },
-  scrollViewContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
+  flatListContent: {
+    paddingHorizontal: 10, // Reduced horizontal padding
+    paddingTop: 10, // Reduced top padding
     paddingBottom: 85,
   },
+  columnWrapper: {
+    justifyContent: "space-between", // Space evenly between columns
+    marginBottom: 10, // Vertical spacing between rows
+  },
+
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
+
   loadingText: {
     marginTop: 20,
     fontSize: 16,

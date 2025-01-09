@@ -33,13 +33,7 @@ const DateBar = ({ startDate, endDate, setEndDate, setStartDate }) => {
   };
 
   return (
-    <View
-      style={{
-        backgroundColor: "#f8e7af",
-        borderBottomWidth: 1,
-        borderBottomColor: "#d4bfa6",
-      }}
-    >
+    <View>
       <View style={styles.dateBarContainer}>
         <View style={styles.dateContainer}>
           <TouchableOpacity style={styles.circularButton} onPress={() => setOpenStartDate(true)}>
@@ -96,7 +90,10 @@ const DateBar = ({ startDate, endDate, setEndDate, setStartDate }) => {
       {!auth.currentUser && (
         <View style={styles.authButtonContainer}>
           <Pressable onPress={() => navigate("/login")} style={styles.authButton}>
-            <Text style={styles.authButtonText}>Log In/Sign Up</Text>
+            <Text style={styles.authButtonText}>Log In</Text>
+          </Pressable>
+          <Pressable onPress={() => navigate("/signup")} style={styles.authButtonSignUp}>
+            <Text style={styles.authButtonText}>Sign Up</Text>
           </Pressable>
         </View>
       )}
@@ -110,6 +107,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center", // Align items vertically
     marginTop: 20,
+    marginBottom: 20,
     padding: 20,
     backgroundColor: "#f8e7af", // Light beige background
   },
@@ -128,19 +126,31 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   authButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginTop: 0,
-    margin: 20,
+    marginBottom: 10,
   },
   authButton: {
-    padding: 20,
-    borderRadius: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 35,
+    paddingRight: 35,
+    borderRadius: 25,
     backgroundColor: "#f0b375", // Orange button
+  },
+  authButtonSignUp: {
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 35,
+    paddingRight: 35,
+    borderRadius: 25,
+    backgroundColor: "#f8e7af", // Orange button
   },
   authButtonText: {
     color: "black",
     textAlign: "center",
-    fontSize: 32,
-    letterSpacing: 2,
+    fontSize: 20,
   },
   circularButton: {
     width: 70,

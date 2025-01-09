@@ -14,8 +14,8 @@ import { useNavigate } from "react-router-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 const LogIn = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("claudiu@gmail.com");
+  const [password, setPassword] = useState("123456");
   const navigate = useNavigate();
 
   const handleEmailPasswordSignIn = async () => {

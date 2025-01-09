@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, Dimensions } from "react-native"; // Import Dimensions
 import Ionicons from "@expo/vector-icons/Ionicons";
 import imageMapping from "../hooks/imageMapping";
 import { useNavigate } from "react-router-native";
 import { joinEvent, leaveEvent, getJoinedEvents } from "../hooks/joinedEvents";
 import { auth } from "../firebaseConfig";
+import moment from "moment";
+
+const { width } = Dimensions.get("window");
 
 const EventCard = ({ event }) => {
   const [isJoined, setIsJoined] = useState(false);
-  const dateConvertor = (dateTime) => dateTime.slice(0, 21);
   const bannerSource = imageMapping[event.bannerLocation];
   const navigate = useNavigate();
 
@@ -36,38 +38,30 @@ const EventCard = ({ event }) => {
   };
 
   return (
-    <View style={styles.card}>
-      <Pressable onPress={() => navigate(`/event-details/${event.id}`)}>
-        <Image source={bannerSource} style={styles.banner} />
-        <View style={styles.details}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.title}>{event.title}</Text>
-            <Text style={styles.date}>{dateConvertor(event.date.toString())}</Text>
-          </View>
+    <Pressable style={styles.card} onPress={() => navigate(`/event-details/${event.id}`)}>
+      <Image source={bannerSource} style={styles.banner} />
 
-          <Pressable
-            style={styles.starButton}
-            onPress={() => (auth.currentUser ? handleJoinLeave() : navigate("/login"))}
-          >
-            <Ionicons
-              style={styles.starIcon}
-              name={isJoined ? "star" : "star-outline"}
-              size={30}
-              color="#f0b375"
-            />
-          </Pressable>
-        </View>
+      <View style={styles.details}>
+        <Text style={styles.title}>{event.title}</Text>
+        <Text style={styles.date}>
+          {moment(event.date, "YYYY-MM-DD").format("DD-MM-YYYY h:mm a")}
+        </Text>
+      </View>
+
+      <Pressable style={styles.joinButton} onPress={handleJoinLeave}>
+        <Text style={styles.joinButtonText}>{isJoined ? "Leave" : "Join"}</Text>
       </Pressable>
-    </View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
+    width: (width - 36) / 2, // Calculate width dynamically
     backgroundColor: "#fff",
-    borderRadius: 8,
-    marginBottom: 16,
-    overflow: "hidden", // To clip the image if it overflows
+    borderRadius: 20,
+    marginBottom: 6,
+    overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -76,14 +70,35 @@ const styles = StyleSheet.create({
   },
   banner: {
     width: "100%",
-    height: 250,
+    height: 150,
+    resizeMode: "cover",
   },
   details: {
     padding: 16,
-    flexDirection: "row",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    height: 100,
   },
   starButton: {
     padding: 8,
+  },
+  joinButton: {
+    // Style for the Join/Leave button
+    backgroundColor: "#f0b375",
+    paddingLeft: 16,
+    paddingRight: 16,
+    height: 45,
+    marginLeft: 10,
+    marginRight: 10,
+    marginBottom: 10,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  joinButtonText: {
+    color: "black",
+    fontWeight: "bold",
+    fontSize: 18,
   },
   starIcon: {
     fontSize: 30,
@@ -91,7 +106,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: 5,
+    marginTop: -5,
   },
   date: {
     fontSize: 14,
