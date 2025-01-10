@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, Pressable, Dimensions } from "react-native"; // Import Dimensions
-import Ionicons from "@expo/vector-icons/Ionicons";
 import imageMapping from "../hooks/imageMapping";
 import { useNavigate } from "react-router-native";
 import { joinEvent, leaveEvent, getJoinedEvents } from "../hooks/joinedEvents";
@@ -44,7 +43,7 @@ const EventCard = ({ event }) => {
       <View style={styles.details}>
         <Text style={styles.title}>{event.title}</Text>
         <Text style={styles.date}>
-          {moment(event.date, "YYYY-MM-DD").format("DD-MM-YYYY h:mm a")}
+          {moment(event.date, "YYYY-MM-DD").format("DD-MM-YYYY h:mm A")}
         </Text>
       </View>
 

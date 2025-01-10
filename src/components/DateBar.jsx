@@ -31,7 +31,7 @@ const DateBar = ({ startDate, endDate, setEndDate, setStartDate }) => {
       setEndDate(startDate);
     }
   };
-
+  //console.log(auth.currentUser);
   return (
     <View>
       <View style={styles.dateBarContainer}>
