@@ -17,6 +17,7 @@ import moment from "moment";
 import { joinEvent, leaveEvent, getJoinedEvents } from "../hooks/joinedEvents";
 import { useNavigate } from "react-router-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { updateAttendeeCount } from "../hooks/updateEvent";
 
 const EventDetails = () => {
   const { eventId } = useParams();
@@ -66,8 +67,12 @@ const EventDetails = () => {
     try {
       if (isJoined) {
         await leaveEvent(eventId);
+        await updateAttendeeCount(eventId, false);
+        setEvent({ ...event, attendeeCount: event.attendeeCount - 1 });
       } else {
         await joinEvent(eventId);
+        await updateAttendeeCount(eventId, true);
+        setEvent({ ...event, attendeeCount: event.attendeeCount + 1 });
       }
       setIsJoined(!isJoined); // Toggle joined state immediately
     } catch (error) {
@@ -98,7 +103,10 @@ const EventDetails = () => {
   return (
     <View style={styles.container}>
       <View style={styles.bannerImageContainer}>
-        <Image source={bannerImage} style={styles.bannerImage} />
+        <Image
+          source={bannerImage ? bannerImage : { uri: "https://picsum.photos/250/150" }}
+          style={styles.bannerImage}
+        />
       </View>
       <View style={styles.header}>
         <Pressable onPress={() => navigate("/")} style={styles.backButton}>

@@ -18,6 +18,7 @@ import { auth } from "../firebaseConfig"; // Firebase auth
 import imageMapping from "../hooks/imageMapping";
 import CountryFlag from "react-native-country-flag";
 import moment from "moment";
+
 const ProfilePage = () => {
   const [joinedEvents, setJoinedEvents] = useState([]);
   const [createdEvents, setCreatedEvents] = useState([]);
@@ -78,7 +79,7 @@ const ProfilePage = () => {
   }
 
   if (!user) return null; // Prevent rendering if user is not fetched
-  console.log(user.createdAt.toDate());
+
   return (
     <ScrollView style={styles.profileContainer}>
       {/* Profile Header */}
@@ -117,6 +118,9 @@ const ProfilePage = () => {
           {moment(user.createdAt.toDate()).format("DD MMMM YYYY")}
         </Text>
       </View>
+      <Pressable onPress={() => navigate("/create-event")}>
+        <Text style={styles.createEventText}>Create Event</Text>
+      </Pressable>
     </ScrollView>
   );
 };
@@ -206,6 +210,12 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#d4bfa6",
+  },
+  createEventText: {
+    fontSize: 18,
+    fontWeight: "800",
+    marginBottom: 10,
+    color: "#a56931",
   },
   eventsTitle: {
     fontSize: 18,

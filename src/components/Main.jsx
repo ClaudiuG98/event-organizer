@@ -11,6 +11,7 @@ import FooterBar from "./FooterBar";
 import ProfilePage from "./ProfilePage";
 import JoinedEvents from "./JoinedEvents";
 import EventDetails from "./EventDetails";
+import CreateEvent from "./CreateEvent";
 
 const styles = StyleSheet.create({
   container: {
@@ -73,6 +74,7 @@ const Main = () => {
         />
         <Route path="/joinedEvents" element={<JoinedEvents />} />
         <Route path="/event-details/:eventId" element={<EventDetails />} />
+        <Route path="/create-event" element={<CreateEvent />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/profile" element={<ProfilePage />} />

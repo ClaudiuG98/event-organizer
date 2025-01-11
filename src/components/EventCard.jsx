@@ -5,12 +5,14 @@ import { useNavigate } from "react-router-native";
 import { joinEvent, leaveEvent, getJoinedEvents } from "../hooks/joinedEvents";
 import { auth } from "../firebaseConfig";
 import moment from "moment";
+import { updateAttendeeCount } from "../hooks/updateEvent";
 
 const { width } = Dimensions.get("window");
 
 const EventCard = ({ event }) => {
   const [isJoined, setIsJoined] = useState(false);
   const bannerSource = imageMapping[event.bannerLocation];
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,15 +32,22 @@ const EventCard = ({ event }) => {
     }
     if (isJoined) {
       await leaveEvent(event.id);
+      await updateAttendeeCount(event.id, false);
+      event = { ...event, attendeeCount: event.attendeeCount - 1 };
     } else {
       await joinEvent(event.id);
+      await updateAttendeeCount(event.id, true);
+      event = { ...event, attendeeCount: event.attendeeCount + 1 };
     }
     setIsJoined(!isJoined);
   };
 
   return (
     <Pressable style={styles.card} onPress={() => navigate(`/event-details/${event.id}`)}>
-      <Image source={bannerSource} style={styles.banner} />
+      <Image
+        source={bannerSource ? bannerSource : { uri: "https://picsum.photos/250/150" }}
+        style={styles.banner}
+      />
 
       <View style={styles.details}>
         <Text style={styles.title}>{event.title}</Text>
