@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, Pressable } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { getJoinedEvents } from "../hooks/joinedEvents";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import EventCard from "./EventCard";
 import { auth } from "../firebaseConfig"; // Import auth
@@ -15,41 +15,54 @@ const JoinedEvents = () => {
 
   const navigate = useNavigate();
   useEffect(() => {
+    let unsubscribe;
+
     const fetchJoinedEvents = async () => {
-      setError(null);
       setLoading(true);
       try {
         if (!auth.currentUser) {
-          // Handle the case where the user is not logged in
           setJoinedEvents([]);
           setLoading(false);
           return;
         }
-        const joinedEventIds = await getJoinedEvents();
-        const eventsCollectionRef = collection(db, "events");
-        const fetchedEvents = [];
 
-        for (const eventId of joinedEventIds) {
-          const eventDoc = await getDoc(doc(eventsCollectionRef, eventId));
-          if (eventDoc.exists()) {
-            fetchedEvents.push({ id: eventDoc.id, ...eventDoc.data() });
-          }
+        const joinedEventIds = await getJoinedEvents();
+        if (joinedEventIds.length === 0) {
+          setJoinedEvents([]);
+          setLoading(false);
+          return;
         }
-        setJoinedEvents(fetchedEvents);
+
+        unsubscribe = onSnapshot(
+          collection(db, "events"), // Listen to the whole events collection
+          (snapshot) => {
+            const updatedJoinedEvents = [];
+            snapshot.forEach((doc) => {
+              if (joinedEventIds.includes(doc.id)) {
+                updatedJoinedEvents.push({ id: doc.id, ...doc.data() });
+              }
+            });
+            setJoinedEvents(updatedJoinedEvents);
+            setLoading(false);
+          },
+          (error) => {
+            console.log("onSnapshot Error: " + error);
+          }
+        );
       } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching joined events:", error);
       }
     };
 
     fetchJoinedEvents();
+
+    return () => unsubscribe && unsubscribe(); // Unsubscribe on unmount
   }, []);
 
   const Header = () => {
     return (
       <View style={styles.header}>
-        <Pressable onPress={() => navigate("/")} style={styles.backButton}>
+        <Pressable onPress={() => navigate(-1)} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#8b4513" />
         </Pressable>
         <Text style={styles.title}>Joined Events</Text>
@@ -98,11 +111,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFAF0",
     flexDirection: "row",
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   flatListContent: {
     paddingHorizontal: 10, // Reduced horizontal padding
     paddingTop: 10, // Reduced top padding
@@ -111,6 +119,11 @@ const styles = StyleSheet.create({
   columnWrapper: {
     justifyContent: "space-between", // Space evenly between columns
     marginBottom: 10, // Vertical spacing between rows
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   loadingText: {
     marginTop: 20,

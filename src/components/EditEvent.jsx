@@ -1,38 +1,83 @@
-// CreateEvent.jsx
-import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  ActivityIndicator,
+} from "react-native";
 import DatePicker from "react-native-date-picker";
 import moment from "moment";
-import { useNavigate } from "react-router-native";
-import { createEvent } from "../hooks/createEvent";
+import { useNavigate, useParams } from "react-router-native";
+import { updateEventDetails, getEventDetails } from "../hooks/updateEvent"; // Import the update function
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-const CreateEvent = () => {
+const EditEvent = () => {
+  const { eventId } = useParams();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
   const [location, setLocation] = useState("");
   const [openDate, setOpenDate] = useState(false);
+  const [loading, setLoading] = useState(true); // Add loading state
+
+  useEffect(() => {
+    const fetchEventDetails = async () => {
+      setLoading(true);
+      try {
+        const eventData = await getEventDetails(eventId); // Use getEventDetails
+        if (eventData) {
+          setTitle(eventData.title);
+          setDescription(eventData.description);
+          setDate(new Date(eventData.date)); // Convert date string to Date object
+          setLocation(eventData.location);
+        } else {
+          console.error("Event not found"); // Or handle the error as needed
+          // Consider navigating back or displaying an error message
+          navigate(-1); // Example: navigate back to the previous screen.
+        }
+      } catch (error) {
+        console.error("Error fetching event details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEventDetails();
+  }, [eventId]);
 
   const handleSubmit = async () => {
     try {
       const formattedDate = moment(date).format("YYYY-MM-DD");
-      await createEvent({ title, description, date: formattedDate, location });
-      navigate("/");
+      const updates = { title, description, date: formattedDate, location };
+      await updateEventDetails(eventId, updates);
+      navigate(-1); // Navigate back to event details
     } catch (error) {
-      console.error("Error creating event:", error);
-      // Handle the error, e.g., show an error message to the user
+      console.error("Error updating event:", error);
+      // Handle the error
     }
   };
+
+  if (loading) {
+    // Show loading indicator while fetching data
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#f0b375" />
+        <Text style={styles.loadingText}>Loading event details...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigate("/profile")} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#8b4513" />
         </TouchableOpacity>
-        <Text style={styles.title}>Create Event</Text>
+        <Text style={styles.title}>Edit Event</Text>
       </View>
       <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
       <TextInput
@@ -70,12 +115,11 @@ const CreateEvent = () => {
         onChangeText={setLocation}
       />
       <TouchableOpacity style={styles.createButton} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Create Event</Text>
+        <Text style={styles.buttonText}>Update Event</Text>
       </TouchableOpacity>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -118,6 +162,16 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: "#888",
+  },
 });
 
-export default CreateEvent;
+export default EditEvent;

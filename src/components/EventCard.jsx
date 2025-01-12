@@ -43,7 +43,7 @@ const EventCard = ({ event }) => {
   };
 
   return (
-    <Pressable style={styles.card} onPress={() => navigate(`/event-details/${event.id}`)}>
+    <Pressable style={styles.card} onPress={() => navigate(`/event/${event.id}`)}>
       <Image
         source={bannerSource ? bannerSource : { uri: "https://picsum.photos/250/150" }}
         style={styles.banner}

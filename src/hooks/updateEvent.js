@@ -1,6 +1,6 @@
 // eventUtils.js (new file)
 
-import { doc, updateDoc, increment } from "firebase/firestore";
+import { doc, updateDoc, increment, getDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 
 export const updateAttendeeCount = async (eventId, isJoining) => {
@@ -23,6 +23,22 @@ export const updateEventDetails = async (eventId, updates) => {
     await updateDoc(eventRef, updates); // updates is an object with the fields to change
   } catch (error) {
     console.error("Error updating event details:", error);
+    throw error;
+  }
+};
+
+export const getEventDetails = async (eventId) => {
+  try {
+    const eventRef = doc(db, "events", eventId);
+    const eventDocSnap = await getDoc(eventRef);
+
+    if (eventDocSnap.exists()) {
+      return eventDocSnap.data();
+    } else {
+      return null; // Or throw an error if you prefer
+    }
+  } catch (error) {
+    console.error("Error fetching event details:", error);
     throw error;
   }
 };

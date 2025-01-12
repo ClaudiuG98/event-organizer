@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     height: 45,
     borderColor: "#d2b48c", // Tan border
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 25,
     marginBottom: 15,
     paddingHorizontal: 15,
     width: "90%",
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   button: {
     // Orange button
     backgroundColor: "#ffa500", // Orange
-    borderRadius: 8,
+    borderRadius: 25,
     paddingVertical: 12,
     paddingHorizontal: 20,
     width: "90%",

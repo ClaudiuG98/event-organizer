@@ -10,8 +10,8 @@ import {
   Pressable,
 } from "react-native";
 import { useParams } from "react-router-native";
-import { db, auth } from "../firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
+import { auth } from "../firebaseConfig";
+import { getEventDetails } from "../hooks/updateEvent";
 import imageMapping from "../hooks/imageMapping";
 import moment from "moment";
 import { joinEvent, leaveEvent, getJoinedEvents } from "../hooks/joinedEvents";
@@ -26,23 +26,24 @@ const EventDetails = () => {
   const [error, setError] = useState(null);
   const [daysLeft, setDaysLeft] = useState(null);
   const [isJoined, setIsJoined] = useState(false);
-
+  const [isOwner, setIsOwner] = useState(false);
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchEventDetails = async () => {
       setLoading(true);
       try {
-        const eventDocRef = doc(db, "events", eventId);
-        const eventDocSnap = await getDoc(eventDocRef);
-
-        if (eventDocSnap.exists()) {
-          const eventData = eventDocSnap.data();
+        const eventData = await getEventDetails(eventId); // Use the new function
+        if (eventData) {
           setEvent(eventData);
 
           const eventDate = moment(eventData.date, "YYYY-MM-DD");
           const now = moment();
           const daysDiff = eventDate.diff(now, "days");
           setDaysLeft(daysDiff);
+          if (auth.currentUser && eventData.createdBy === auth.currentUser.uid) {
+            setIsOwner(true);
+          }
         } else {
           setError("Event not found");
         }
@@ -55,8 +56,10 @@ const EventDetails = () => {
     };
 
     const checkJoinedStatus = async () => {
-      const joinedEvents = await getJoinedEvents();
-      setIsJoined(joinedEvents.includes(eventId));
+      if (auth.currentUser) {
+        const joinedEvents = await getJoinedEvents();
+        setIsJoined(joinedEvents.includes(eventId));
+      }
     };
 
     fetchEventDetails();
@@ -109,7 +112,7 @@ const EventDetails = () => {
         />
       </View>
       <View style={styles.header}>
-        <Pressable onPress={() => navigate("/")} style={styles.backButton}>
+        <Pressable onPress={() => navigate(-1)} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#8b4513" />
         </Pressable>
         <Text style={styles.title}>{event.title}</Text>
@@ -141,6 +144,11 @@ const EventDetails = () => {
           <Text style={styles.infoText}> {event.attendeeCount} Attendees</Text>
         </View>
       </View>
+      {isOwner && (
+        <TouchableOpacity onPress={() => navigate(`/edit/${eventId}`)} style={styles.joinButton}>
+          <Text style={styles.joinButtonText}>Edit Event</Text>
+        </TouchableOpacity>
+      )}
       {daysLeft < 0 ? (
         <TouchableOpacity style={styles.joinButton} onPress={() => navigate("/")}>
           <Text style={styles.joinButtonText}>Event Ended, Check out More Events</Text>

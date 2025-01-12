@@ -6,13 +6,11 @@ import {
   Image,
   StyleSheet,
   ScrollView,
-  Pressable,
   ActivityIndicator,
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { getJoinedEventsData } from "../hooks/joinedEvents";
-import { getCreatedEventsData } from "../hooks/joinedEvents";
+import { getJoinedEventsData, getCreatedEventsData } from "../hooks/joinedEvents";
 import { getCurrentUserData } from "../hooks/currentUserData";
 import { auth } from "../firebaseConfig"; // Firebase auth
 import imageMapping from "../hooks/imageMapping";
@@ -36,7 +34,6 @@ const ProfilePage = () => {
           navigate("/login");
           return;
         }
-
         setLoading(true);
 
         // Fetch user data and joined events
@@ -118,9 +115,9 @@ const ProfilePage = () => {
           {moment(user.createdAt.toDate()).format("DD MMMM YYYY")}
         </Text>
       </View>
-      <Pressable onPress={() => navigate("/create-event")}>
-        <Text style={styles.createEventText}>Create Event</Text>
-      </Pressable>
+      <TouchableOpacity style={styles.joinButton} onPress={() => navigate("/create-event")}>
+        <Text style={styles.joinButtonText}>Create New Event</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -133,12 +130,13 @@ const EventSection = ({ title, events, fallbackText, navigate }) => (
         data={events}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.eventCard}
-            onPress={() => navigate(`/event-details/${item.id}`)}
-          >
+          <TouchableOpacity style={styles.eventCard} onPress={() => navigate(`/event/${item.id}`)}>
             <Image
-              source={imageMapping[item.bannerLocation] || "https://via.placeholder.com/150"}
+              source={
+                imageMapping[item.bannerLocation]
+                  ? imageMapping[item.bannerLocation]
+                  : { uri: "https://picsum.photos/250/150" }
+              }
               style={styles.eventImage}
             />
             <View style={styles.eventDetails}>
@@ -211,11 +209,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#d4bfa6",
   },
-  createEventText: {
-    fontSize: 18,
-    fontWeight: "800",
-    marginBottom: 10,
-    color: "#a56931",
+  joinButton: {
+    backgroundColor: "#f0b375",
+    padding: 15,
+    borderRadius: 25,
+    alignItems: "center",
+    marginTop: 20, // Add margin top
+    marginLeft: 40,
+    marginRight: 40,
+  },
+  joinButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
   eventsTitle: {
     fontSize: 18,

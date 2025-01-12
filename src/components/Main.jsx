@@ -2,7 +2,7 @@ import { StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Route, Routes, Navigate } from "react-router-native";
 import { useEffect, useState } from "react";
-import { getDocs, collection } from "firebase/firestore";
+import { getDocs, collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import LogIn from "./LogIn";
 import SignUp from "./SignUp";
@@ -12,6 +12,7 @@ import ProfilePage from "./ProfilePage";
 import JoinedEvents from "./JoinedEvents";
 import EventDetails from "./EventDetails";
 import CreateEvent from "./CreateEvent";
+import EditEvent from "./EditEvent";
 
 const styles = StyleSheet.create({
   container: {
@@ -34,20 +35,16 @@ const Main = () => {
   }
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "events"));
-        const eventList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setEvents(eventList);
-      } catch (error) {
-        console.error("Error fetching events: ", error); // Log for debugging
-      }
-    };
+    const unsubscribe = onSnapshot(collection(db, "events"), (querySnapshot) => {
+      // Use onSnapshot
+      const eventList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setEvents(eventList);
+    });
 
-    fetchEvents();
+    return () => unsubscribe(); // Clean up listener
   }, []);
 
   return (
@@ -73,7 +70,8 @@ const Main = () => {
           }
         />
         <Route path="/joinedEvents" element={<JoinedEvents />} />
-        <Route path="/event-details/:eventId" element={<EventDetails />} />
+        <Route path="/event/:eventId" element={<EventDetails />} />
+        <Route path="/edit/:eventId" element={<EditEvent />} />
         <Route path="/create-event" element={<CreateEvent />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/signup" element={<SignUp />} />

@@ -106,9 +106,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center", // Align items vertically
-    marginTop: 20,
     marginBottom: 20,
     padding: 20,
+    paddingTop: 40,
     backgroundColor: "#f8e7af", // Light beige background
   },
   dateContainer: {
