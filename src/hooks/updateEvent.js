@@ -1,6 +1,6 @@
 // eventUtils.js (new file)
 
-import { doc, updateDoc, increment, getDoc } from "firebase/firestore";
+import { doc, updateDoc, increment, getDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 
 export const updateAttendeeCount = async (eventId, isJoining) => {
@@ -39,6 +39,16 @@ export const getEventDetails = async (eventId) => {
     }
   } catch (error) {
     console.error("Error fetching event details:", error);
+    throw error;
+  }
+};
+
+export const deleteEvent = async (eventId) => {
+  try {
+    const eventRef = doc(db, "events", eventId);
+    await deleteDoc(eventRef);
+  } catch (error) {
+    console.error("Error deleting event:", error);
     throw error;
   }
 };

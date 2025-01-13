@@ -13,6 +13,8 @@ import JoinedEvents from "./JoinedEvents";
 import EventDetails from "./EventDetails";
 import CreateEvent from "./CreateEvent";
 import EditEvent from "./EditEvent";
+import SettingsPage from "./SettingsPage";
+import ChangePasswordPage from "./ChangePasswordPage";
 
 const styles = StyleSheet.create({
   container: {
@@ -73,8 +75,10 @@ const Main = () => {
         <Route path="/event/:eventId" element={<EventDetails />} />
         <Route path="/edit/:eventId" element={<EditEvent />} />
         <Route path="/create-event" element={<CreateEvent />} />
+        <Route path="/change-password" element={<ChangePasswordPage />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -16,6 +16,8 @@ import { auth } from "../firebaseConfig"; // Firebase auth
 import imageMapping from "../hooks/imageMapping";
 import CountryFlag from "react-native-country-flag";
 import moment from "moment";
+import { Menu, MenuItem, MenuDivider } from "react-native-material-menu";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const ProfilePage = () => {
   const [joinedEvents, setJoinedEvents] = useState([]);
@@ -23,6 +25,7 @@ const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,6 +62,11 @@ const ProfilePage = () => {
     return () => unsubscribeAuth(); // Cleanup auth listener
   }, [navigate]);
 
+  const navigateToSettings = () => {
+    setVisible(false);
+    navigate("/settings", { state: { user } });
+  };
+
   if (loading) {
     return (
       <View style={styles.centeredContainer}>
@@ -79,10 +87,28 @@ const ProfilePage = () => {
 
   return (
     <ScrollView style={styles.profileContainer}>
-      {/* Profile Header */}
+      <View style={styles.menuContainer}>
+        <Menu
+          visible={visible}
+          anchor={
+            <TouchableOpacity onPress={() => setVisible(true)}>
+              <Ionicons name="ellipsis-horizontal-sharp" size={24} color="black" />
+            </TouchableOpacity>
+          }
+          onRequestClose={() => setVisible(false)}
+        >
+          <MenuItem onPress={() => navigateToSettings()}>
+            <View style={styles.menuItemContainer}>
+              <Ionicons name="settings-sharp" size={22} color="black" style={styles.menuIcon} />
+              <Text style={styles.menuItemText}>Settings</Text>
+            </View>
+          </MenuItem>
+          <MenuDivider />
+        </Menu>
+      </View>
       <View style={styles.header}>
         <Image
-          source={{ uri: user.photoURL || "https://via.placeholder.com/150" }}
+          source={{ uri: user.profilePicture != "" || "https://placehold.co/150x150/png" }}
           style={styles.profilePicture}
         />
         <View style={styles.profileInfo}>
@@ -115,8 +141,8 @@ const ProfilePage = () => {
           {moment(user.createdAt.toDate()).format("DD MMMM YYYY")}
         </Text>
       </View>
-      <TouchableOpacity style={styles.joinButton} onPress={() => navigate("/create-event")}>
-        <Text style={styles.joinButtonText}>Create New Event</Text>
+      <TouchableOpacity style={styles.createButton} onPress={() => navigate("/create-event")}>
+        <Text style={styles.createButtonText}>Create New Event</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -209,16 +235,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#d4bfa6",
   },
-  joinButton: {
+  createButton: {
     backgroundColor: "#f0b375",
     padding: 15,
     borderRadius: 25,
     alignItems: "center",
     marginTop: 20, // Add margin top
-    marginLeft: 40,
-    marginRight: 40,
+    marginLeft: 25,
+    marginRight: 25,
   },
-  joinButtonText: {
+  createButtonText: {
     color: "white",
     fontWeight: "bold",
     fontSize: 16,
@@ -264,6 +290,25 @@ const styles = StyleSheet.create({
   fallbackText: {
     color: "#888",
     fontStyle: "italic",
+  },
+  menuContainer: {
+    position: "absolute",
+    top: 30,
+    right: 20,
+    zIndex: 1,
+  },
+
+  menuItemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
+  },
+  menuIcon: {
+    marginRight: 5,
+  },
+  menuItemText: {
+    fontSize: 16,
   },
 });
 

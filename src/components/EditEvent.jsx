@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   Platform,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import DatePicker from "react-native-date-picker";
 import moment from "moment";
 import { useNavigate, useParams } from "react-router-native";
-import { updateEventDetails, getEventDetails } from "../hooks/updateEvent"; // Import the update function
+import { updateEventDetails, getEventDetails, deleteEvent } from "../hooks/updateEvent"; // Import the update function
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 const EditEvent = () => {
@@ -48,6 +49,29 @@ const EditEvent = () => {
 
     fetchEventDetails();
   }, [eventId]);
+
+  const handleDelete = async () => {
+    Alert.alert("Delete Event", "Are you sure you want to delete this event?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteEvent(eventId);
+            navigate(-2);
+          } catch (error) {
+            console.error("Error deleting event:", error);
+            // Handle the error, e.g., show an error message to the user
+            Alert.alert("Error", "Failed to delete event.");
+          }
+        },
+      },
+    ]);
+  };
 
   const handleSubmit = async () => {
     try {
@@ -114,8 +138,11 @@ const EditEvent = () => {
         value={location}
         onChangeText={setLocation}
       />
-      <TouchableOpacity style={styles.createButton} onPress={handleSubmit}>
+      <TouchableOpacity style={styles.updateButton} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Update Event</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+        <Text style={styles.deleteButtonText}>Delete Event</Text>
       </TouchableOpacity>
     </View>
   );
@@ -147,13 +174,25 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: Platform.OS === "android" ? 3 : 0,
   },
-  createButton: {
+  updateButton: {
     backgroundColor: "#f0b375",
     borderRadius: 25,
     padding: 15,
     alignItems: "center",
   },
   buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  deleteButton: {
+    backgroundColor: "#dc3545", // Red color for delete button
+    borderRadius: 25,
+    padding: 15,
+    alignItems: "center",
+    marginTop: 10, // Add some margin
+  },
+  deleteButtonText: {
     color: "white",
     fontWeight: "bold",
     fontSize: 16,

@@ -20,6 +20,7 @@
     "react-native": "0.76.5",
     "react-native-country-flag": "^2.0.2",
     "react-native-date-picker": "^5.0.8",
+    "react-native-material-menu": "^2.0.0",
     "react-router-native": "^6.28.1"
   },
   "devDependencies": {
