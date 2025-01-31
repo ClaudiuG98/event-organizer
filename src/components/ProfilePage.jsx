@@ -167,7 +167,9 @@ const EventSection = ({ title, events, fallbackText, navigate }) => (
             />
             <View style={styles.eventDetails}>
               <Text style={styles.eventTitle}>{item.title}</Text>
-              <Text style={styles.eventDate}>{item.date}</Text>
+              <Text style={styles.eventDate}>
+                {moment(item.date.seconds * 1000).format("DD-MM-YYYY h:mm A")}
+              </Text>
             </View>
           </TouchableOpacity>
         )}

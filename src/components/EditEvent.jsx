@@ -14,7 +14,7 @@ import moment from "moment";
 import { useNavigate, useParams } from "react-router-native";
 import { updateEventDetails, getEventDetails, deleteEvent } from "../hooks/updateEvent"; // Import the update function
 import Ionicons from "@expo/vector-icons/Ionicons";
-
+import { Timestamp } from "firebase/firestore";
 const EditEvent = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ const EditEvent = () => {
         if (eventData) {
           setTitle(eventData.title);
           setDescription(eventData.description);
-          setDate(new Date(eventData.date)); // Convert date string to Date object
+          setDate(eventData.date.toDate()); // Convert date string to Date object
           setLocation(eventData.location);
         } else {
           console.error("Event not found"); // Or handle the error as needed
@@ -75,8 +75,9 @@ const EditEvent = () => {
 
   const handleSubmit = async () => {
     try {
-      const formattedDate = moment(date).format("YYYY-MM-DD");
-      const updates = { title, description, date: formattedDate, location };
+      const formattedDate = Timestamp.fromDate(date);
+      console.log("formattedDate ==> ", formattedDate);
+      const updates = { title, description, date, location };
       await updateEventDetails(eventId, updates);
       navigate(-1); // Navigate back to event details
     } catch (error) {

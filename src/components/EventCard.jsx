@@ -9,7 +9,7 @@ import { updateAttendeeCount } from "../hooks/updateEvent";
 
 const { width } = Dimensions.get("window");
 
-const EventCard = ({ event }) => {
+const EventCard = ({ event, past }) => {
   const [isJoined, setIsJoined] = useState(false);
   const bannerSource = imageMapping[event.bannerLocation];
 
@@ -43,7 +43,11 @@ const EventCard = ({ event }) => {
   };
 
   return (
-    <Pressable style={styles.card} onPress={() => navigate(`/event/${event.id}`)}>
+    <Pressable
+      style={[styles.card, past && styles.pastEvent]}
+      onPress={() => navigate(`/event/${event.id}`)}
+      disabled={past}
+    >
       <Image
         source={bannerSource ? bannerSource : { uri: "https://picsum.photos/250/150" }}
         style={styles.banner}
@@ -52,12 +56,16 @@ const EventCard = ({ event }) => {
       <View style={styles.details}>
         <Text style={styles.title}>{event.title}</Text>
         <Text style={styles.date}>
-          {moment(event.date, "YYYY-MM-DD").format("DD-MM-YYYY h:mm A")}
+          {moment(event.date.seconds * 1000).format("DD-MM-YYYY h:mm A")}
         </Text>
       </View>
 
-      <Pressable style={styles.joinButton} onPress={handleJoinLeave}>
-        <Text style={styles.joinButtonText}>{isJoined ? "Leave" : "Join"}</Text>
+      <Pressable style={styles.joinButton} onPress={handleJoinLeave} disabled={past}>
+        {!past ? (
+          <Text style={styles.joinButtonText}>{isJoined ? "Leave" : "Join"}</Text>
+        ) : (
+          <Text style={styles.joinButtonText}>Ended</Text>
+        )}
       </Pressable>
     </Pressable>
   );
@@ -120,6 +128,9 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 14,
     color: "#888",
+  },
+  pastEvent: {
+    opacity: 0.5, // Adjust opacity as needed
   },
 });
 

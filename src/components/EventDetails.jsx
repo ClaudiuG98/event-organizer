@@ -37,7 +37,7 @@ const EventDetails = () => {
         if (eventData) {
           setEvent(eventData);
 
-          const eventDate = moment(eventData.date, "YYYY-MM-DD");
+          const eventDate = moment(eventData.date.toDate(), "YYYY-MM-DD");
           const now = moment();
           const daysDiff = eventDate.diff(now, "days");
           setDaysLeft(daysDiff);
@@ -127,7 +127,7 @@ const EventDetails = () => {
         <View style={styles.infoRow}>
           <Ionicons name="calendar" size={24} color="#f0b375" />
           <Text style={styles.infoText}>
-            {moment(event.date, "YYYY-MM-DD").format("D MMMM, YYYY ")}
+            {moment(event.date.seconds * 1000).format("D MMMM, YYYY ")}
             {daysLeft !== null && (
               <Text style={{ color: daysLeft <= 3 ? "red" : "black" }}>
                 ({daysLeft} {daysLeft === 1 ? "day" : "days"} left)
